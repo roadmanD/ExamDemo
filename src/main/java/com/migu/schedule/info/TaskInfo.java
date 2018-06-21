@@ -10,6 +10,7 @@ public class TaskInfo
 {
     private int taskId;
     private int nodeId;
+    private int consumption;
     public int getNodeId()
     {
         return nodeId;
@@ -23,6 +24,28 @@ public class TaskInfo
     {
         this.taskId = taskId;
     }
+
+    public int getConsumption() {
+        return consumption;
+    }
+
+    public void setConsumption(int consumption) {
+        this.consumption = consumption;
+    }
+
+    public TaskInfo(){
+        taskId = 0;
+        nodeId = -1;
+        consumption = 0;
+    }
+
+    public TaskInfo(int id,int con){
+        taskId = id;
+        consumption = con;
+        nodeId = -1;
+    }
+
+
     @Override
     public String toString()
     {
