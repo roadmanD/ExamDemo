@@ -167,6 +167,7 @@ public class Schedule {
         if(threshold <= 0){
             return ReturnCodeKeys.E002;
         }
+<<<<<<< HEAD
 //        List<TaskInfo> sumTaskInfoList = getSumTaskInfoList();
 
         //把账单按从大到小排序
@@ -221,6 +222,88 @@ public class Schedule {
 
         nodeTaskMap = nodeTaskTestMap;
 
+=======
+        List<TaskInfo> sumTaskInfoList = getSumTaskInfoList();
+        if(sumTaskInfoList.size() <= nodeList.size()){
+            int cut = 0;
+            for(int i = 0; i < sumTaskInfoList.size() - 1; i++){
+                int com = Math.abs(sumTaskInfoList.get(i).getConsumption() - sumTaskInfoList.get(i++).getConsumption());
+                if(cut < com){
+                    cut = com;
+                }
+                if(cut > threshold){
+                    return ReturnCodeKeys.E014;
+                }
+            }
+            //可分配
+            waitTaskInfoList = new ArrayList<TaskInfo>();
+
+            for(int i = 0; i < sumTaskInfoList.size() - 1; i++){
+                TaskInfo taskInfo = sumTaskInfoList.get(i);
+                taskInfo.setNodeId(nodeList.get(i));
+                List<TaskInfo> tiList = new ArrayList<TaskInfo>();
+                tiList.add(taskInfo);
+                nodeTaskMap.put(nodeList.get(i),tiList);
+                taskInfoMap.put(taskInfo.getTaskId(),taskInfo);
+            }
+        } else {
+            //把账单按从大到小排序
+            Collections.sort(sumTaskInfoList,new Comparator<TaskInfo>() {
+                @Override
+                public int compare(TaskInfo o1, TaskInfo o2) {
+                    if(o1.getConsumption() < o2.getConsumption()){
+                        return -1;
+                    }else if(o1.getConsumption() > o2.getConsumption()){
+                        return 1;
+                    }
+                    return 0;
+                }
+            });
+
+            for(int i = 0; i < sumTaskInfoList.size() - 1; i++){
+                if(Math.abs(sumTaskInfoList.get(i).getConsumption() - sumTaskInfoList.get(i+1).getConsumption()) > threshold){
+                    return ReturnCodeKeys.E014;
+                }
+            }
+
+
+            for(int i = 0; i < nodeList.size(); i++){
+                ArrayList<TaskInfo> tList = new ArrayList<TaskInfo>();
+                TaskInfo t = sumTaskInfoList.get(sumTaskInfoList.size() - i - 1);
+                t.setNodeId(nodeList.get(i));
+                tList.add(t);
+
+                taskInfoMap.put(t.getNodeId(),t);
+                nodeTaskTestMap.put(nodeList.get(i),tList);
+                nodeConsumptionMap.put(nodeList.get(i),tList.get(0).getConsumption());
+            }
+
+            for(int i = sumTaskInfoList.size() - 1;i >  nodeList.size() - 1; i--){
+                Integer nodeId = getMixComNodeId();
+                List<TaskInfo> tList = nodeTaskTestMap.get(nodeId);
+                TaskInfo tt = sumTaskInfoList.get(i);
+                tt.setNodeId(nodeId);
+                tList.add(tt);
+                taskInfoMap.put(tt.getNodeId(),tt);
+                nodeTaskTestMap.put(nodeId,tList);
+                Integer com = 0;
+                for(TaskInfo t : tList){
+                    com += t.getConsumption();
+                }
+                nodeConsumptionMap.put(nodeId,com);
+            }
+
+            Integer mixConNodeId = getMixComNodeId();
+
+            Integer maxConNodeId = getMaxComNodeId();
+
+            if(nodeConsumptionMap.get(maxConNodeId) - nodeConsumptionMap.get(mixConNodeId) > threshold){
+                return ReturnCodeKeys.E014;
+            }
+
+            nodeTaskMap = nodeTaskTestMap;
+        }
+>>>>>>> 44924b97ff7bdd4ab1ccb271b9ff688b8df03ba7
 
         return ReturnCodeKeys.E013;
     }
